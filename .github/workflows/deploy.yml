@@ -27,6 +27,11 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
+      - name: Decode GMAIL_TOKEN_JSON to token.json
+        run: echo "$GMAIL_TOKEN_JSON" > ./src/token.json
+        env:
+          GMAIL_TOKEN_JSON: ${{ secrets.GMAIL_TOKEN_JSON }}
+      
       - name: Terraform Init
         run: terraform init
         working-directory: ./src

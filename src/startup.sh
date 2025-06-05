@@ -20,6 +20,11 @@ cd /root
 git clone "$REPO_URL"
 cd purkinje-learning
 
+# 4. Copiar token.json si existe desde el archivo clonado por GitHub Actions
+if [ -f /root/purkinje-learning/src/token.json ]; then
+    cp /root/purkinje-learning/src/token.json /root/purkinje-learning/token.json
+fi
+
 # 4. Construir imagen Docker con el Dockerfile del proyecto
 docker build -t purkinje-opt .
 
