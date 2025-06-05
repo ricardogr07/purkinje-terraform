@@ -32,6 +32,6 @@ variable "use_docker" {
   default     = false
   validation {
     condition     = can(bool(var.use_docker))
-    error_message = "use_docker muest be a bool."
+    error_message = "use_docker must be a bool."
   }
 }
