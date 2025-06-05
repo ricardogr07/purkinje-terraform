@@ -23,7 +23,7 @@ jobs:
           terraform_version: 1.6.6
 
       - name: Decode GOOGLE_CREDENTIALS secret to file
-        run: echo "$GOOGLE_CREDENTIALS" > gcp-key.json
+        run: echo "$GOOGLE_CREDENTIALS" > ./src/gcp-key.json
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
