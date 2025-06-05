@@ -25,3 +25,13 @@ variable "image" {
 variable "service_account_email" {
   default = "github-actions-deploy@purkinje-learning.iam.gserviceaccount.com"
 }
+
+variable "use_docker" {
+  description = "Determine if Docker will be used in the startup-script"
+  type        = bool
+  default     = false
+  validation {
+    condition     = can(bool(var.use_docker))
+    error_message = "use_docker muest be a bool."
+  }
+}

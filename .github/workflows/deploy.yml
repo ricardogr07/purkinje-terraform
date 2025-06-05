@@ -2,6 +2,11 @@ name: Deploy Purkinje VM with Terraform
 
 on:
   workflow_dispatch:
+    inputs:
+      USE_DOCKER:
+        description: 'Use Docker on startup-script'
+        required: true
+        default: 'false'
 
 permissions:
   contents: read
@@ -37,9 +42,10 @@ jobs:
         working-directory: ./src
 
       - name: Terraform Plan
-        run: terraform plan -var="credentials_file=gcp-key.json"
+        run: terraform plan -var="credentials_file=gcp-key.json" -var="use_docker=${{ github.event.inputs.USE_DOCKER }}"
         working-directory: ./src
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="credentials_file=gcp-key.json"
+        run: terraform apply -auto-approve -var="credentials_file=gcp-key.json" -var="use_docker=${{ github.event.inputs.USE_DOCKER }}"
         working-directory: ./src
+

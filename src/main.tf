@@ -28,7 +28,7 @@ resource "google_compute_instance" "purkinje_vm" {
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
-  metadata_startup_script = file("startup.sh")
+  metadata_startup_script = file(var.use_docker ? "startup.sh" : "startup_no_docker.sh")
 
   labels = {
     environment = "prod"
