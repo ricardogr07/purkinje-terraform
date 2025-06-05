@@ -37,6 +37,10 @@ jobs:
         env:
           GMAIL_TOKEN_JSON: ${{ secrets.GMAIL_TOKEN_JSON }}
       
+      - name: Print input
+        run: |
+          echo "USE_DOCKER evaluated to: ${{ github.event.inputs.USE_DOCKER == 'true' }}"
+
       - name: Terraform Init
         run: terraform init
         working-directory: ./src
