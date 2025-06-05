@@ -44,15 +44,16 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var='credentials_file=gcp-key.json' \
-            -var='use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}'
+            -var="credentials_file=gcp-key.json" \
+            -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}"
         working-directory: ./src
 
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
-            -var='credentials_file=gcp-key.json' \
-            -var='use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}'
+            -var="credentials_file=gcp-key.json" \
+            -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}"
         working-directory: ./src
+
 
 
