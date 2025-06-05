@@ -29,7 +29,16 @@ pip install jupyter nbconvert google-auth google-auth-oauthlib google-auth-httpl
 # 5. Crear carpeta de salida
 mkdir -p /root/output
 
-# 6. Ejecutar el notebook directamente con logging
+# 6. Pasar token.json desde GCS a la VM
+echo "Verificando si token.json existe en GCS..."
+if gsutil ls gs://purkinje-results-bucket/token.json > /dev/null 2>&1; then
+    echo "token.json encontrado. Descargando..."
+    gsutil cp gs://purkinje-results-bucket/token.json /root/purkinje-learning/token.json
+else
+    echo "token.json no encontrado en GCS. Continuando sin él."
+fi
+
+# 7. Ejecutar el notebook directamente con logging
 echo "Ejecutando notebook: $NOTEBOOK"
 jupyter nbconvert \
     --to notebook \
@@ -39,7 +48,7 @@ jupyter nbconvert \
     --ExecutePreprocessor.kernel_name=python3 \
     &> /root/output/log.txt
 
-# 7. Verificar y subir resultado a GCS
+# 8. Verificar y subir resultado a GCS
 if [ -f "/root/output/$OUT_NAME" ]; then
     echo "Notebook ejecutado exitosamente, subiendo resultados..."
     gsutil cp /root/output/* "$GCS_BUCKET/"
@@ -50,7 +59,7 @@ else
     exit 1
 fi
 
-# 8. Enviar notificación por correo si existe token.json
+# 9. Enviar notificación por correo si existe token.json
 if [ -f /root/purkinje-learning/token.json ]; then
     echo "Enviando notificación por correo..."
     python3 /root/purkinje-learning/send_mail.py || echo "Error al enviar correo"
@@ -58,5 +67,5 @@ else
     echo "No se encontró token.json, no se enviará correo"
 fi
 
-# 9. Apagar la VM automáticamente
+# 10. Apagar la VM automáticamente
 shutdown -h now

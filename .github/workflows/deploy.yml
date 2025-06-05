@@ -36,6 +36,14 @@ jobs:
         run: echo "$GMAIL_TOKEN_JSON" > ./src/token.json
         env:
           GMAIL_TOKEN_JSON: ${{ secrets.GMAIL_TOKEN_JSON }}
+      
+      - name: Upload token.json to GCS
+        run: |
+          gcloud auth activate-service-account --key-file=./src/gcp-key.json
+          gcloud config set project purkinje-learning
+          gsutil cp ./src/token.json gs://purkinje-results-bucket/token.json
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./src/gcp-key.json
 
       - name: Delete existing VM if it exists
         run: |
