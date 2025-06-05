@@ -1,19 +1,27 @@
 variable "project_id" {
-  description = "GCP Project ID"
-  type        = string
+  default = "purkinje-learning"
 }
 
 variable "region" {
-  default     = "us-central1"
-  description = "GCP region"
+  default = "us-central1"
 }
 
 variable "zone" {
-  default     = "us-central1-a"
-  description = "GCP zone"
+  default = "us-central1-f"
+}
+
+variable "credentials_file" {
+  default = "gcp-key.json"
+}
+
+variable "machine_type" {
+  default = "n2-standard-32"
+}
+
+variable "image" {
+  default = "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20250530"
 }
 
 variable "service_account_email" {
-  description = "Service account email with compute and storage access"
-  type        = string
+  default = "github-actions-deploy@purkinje-learning.iam.gserviceaccount.com"
 }
