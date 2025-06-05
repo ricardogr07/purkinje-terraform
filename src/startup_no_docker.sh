@@ -52,17 +52,18 @@ jupyter nbconvert \
 if [ -f "/root/output/$OUT_NAME" ]; then
     echo "Notebook ejecutado exitosamente, subiendo resultados..."
     gsutil cp /root/output/* "$GCS_BUCKET/"
+    export EXECUTION_STATUS="SUCCESS"
 else
     echo "ERROR: El archivo $OUT_NAME no se generó correctamente." >&2
     echo "Subiendo log de error..."
     gsutil cp /root/output/log.txt "$GCS_BUCKET/FAILED_$LOG_NAME"
-    exit 1
+    export EXECUTION_STATUS="FAILURE"
 fi
 
 # 9. Enviar notificación por correo si existe token.json
 if [ -f /root/purkinje-learning/token.json ]; then
     echo "Enviando notificación por correo..."
-    python3 /root/purkinje-learning/send_mail.py || echo "Error al enviar correo"
+    EXECUTION_STATUS="$EXECUTION_STATUS" python3 /root/purkinje-learning/send_mail.py || echo "Error al enviar correo"
 else
     echo "No se encontró token.json, no se enviará correo"
 fi
