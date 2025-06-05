@@ -39,7 +39,7 @@ fi
 
 # 7. Ejecutar el script directamente con logging
 echo "Ejecutando script: $SCRIPT"
-python "/root/purkinje-learning/$SCRIPT" &> "/root/output/$OUT_NAME"
+python3 "/root/purkinje-learning/$SCRIPT" &> "/root/output/$OUT_NAME"
 
 # 8. Verificar y subir resultado a GCS
 if grep -q "Elapsed time:" "/root/output/$OUT_NAME"; then
