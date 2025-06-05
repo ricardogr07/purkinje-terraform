@@ -1,11 +1,11 @@
 #! /bin/bash
 
 # Variables configurables
-NOTEBOOK="ECG_BO_demo.ipynb"
+SCRIPT="ECG_BO_demo.py"
 REPO_URL="https://github.com/ricardogr07/purkinje-learning.git"
 GCS_BUCKET="gs://purkinje-results-bucket"
-OUT_NAME="output_$(date +%Y%m%d_%H%M).ipynb"
-LOG_NAME="log_${OUT_NAME%.ipynb}.txt"
+OUT_NAME="output_$(date +%Y%m%d_%H%M).log"
+LOG_NAME="log_${OUT_NAME%.log}.txt"
 
 # 1. Instalar dependencias del sistema
 apt-get update
@@ -25,40 +25,40 @@ if [ -f /root/purkinje-learning/src/token.json ]; then
     cp /root/purkinje-learning/src/token.json /root/purkinje-learning/token.json
 fi
 
-# 4. Construir imagen Docker con el Dockerfile del proyecto
+# 5. Construir imagen Docker con el Dockerfile del proyecto
 docker build -t purkinje-opt .
 
-# 5. Crear carpeta para guardar resultados fuera del contenedor
+# 6. Crear carpeta para guardar resultados fuera del contenedor
 mkdir -p /root/output
 
-# 6. Ejecutar el contenedor con:
+# 7. Ejecutar el contenedor con:
 #    - volumen de salida mapeado
-#    - variable de entorno NOTEBOOK
+#    - variable de entorno SCRIPT
 #    - token.json montado para uso de la API de Gmail
 docker run \
     -v /root/output:/outputs \
     -v /root/purkinje-learning/token.json:/app/token.json \
-    -e NOTEBOOK="$NOTEBOOK" \
-    purkinje-opt | tee /root/output/log.txt
+    -e SCRIPT="$SCRIPT" \
+    purkinje-opt bash -c "python3 /app/\$SCRIPT" | tee /root/output/$OUT_NAME
 
-# 7. Copiar cualquier archivo extra generado directamente en el repo (por ejemplo, imágenes, CSVs)
+# 8. Copiar cualquier archivo extra generado directamente en el repo (por ejemplo, imágenes, CSVs)
 cp -r /root/purkinje-learning/output/* /root/output/ 2>/dev/null || true
 
-# 8. Subir resultados a GCS si el notebook fue exitoso
-if [ -f /root/output/output.ipynb ]; then
-    echo "Notebook ejecutado exitosamente, subiendo resultados..."
+# 9. Subir resultados a GCS si la ejecución fue exitosa (verifica que haya archivos clave)
+if grep -q "Elapsed time:" "/root/output/$OUT_NAME"; then
+    echo "Script ejecutado exitosamente, subiendo resultados..."
     gsutil cp /root/output/* "$GCS_BUCKET/"
 else
-    echo "ERROR: El archivo output.ipynb no se generó correctamente." >&2
+    echo "ERROR: El script no se ejecutó correctamente o no terminó." >&2
     echo "Subiendo log de error..."
-    gsutil cp /root/output/log.txt "$GCS_BUCKET/FAILED_$LOG_NAME"
+    gsutil cp "/root/output/$OUT_NAME" "$GCS_BUCKET/FAILED_$LOG_NAME"
     exit 1
 fi
 
-# 9. Ejecutar script de notificación por correo DENTRO del contenedor (requiere token.json y librerías)
+# 10. Ejecutar script de notificación por correo DENTRO del contenedor (requiere token.json y librerías)
 docker run \
     -v /root/purkinje-learning/token.json:/app/token.json \
     purkinje-opt python3 /app/send_mail.py || echo "Error al enviar notificación"
 
-# 10. Apagar la VM automáticamente
+# 11. Apagar la VM automáticamente
 shutdown -h now
