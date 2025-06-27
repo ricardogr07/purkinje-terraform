@@ -27,6 +27,17 @@ resource "google_compute_instance" "purkinje_vm" {
     access_config {}
   }
 
+  # Attach a GPU accelerator
+  guest_accelerator {
+    type  = "nvidia-tesla-t4"
+    count = 1
+  }
+
+  scheduling {
+    on_host_maintenance = "TERMINATE"
+    automatic_restart    = false
+  }
+
   # Attach a service account with cloud platform scope
   service_account {
     email  = var.service_account_email
@@ -34,11 +45,11 @@ resource "google_compute_instance" "purkinje_vm" {
   }
 
   # Startup script to run when the instance boots
-  metadata_startup_script = file(var.use_docker ? "startup.sh" : "startup_no_docker.sh")
+  metadata_startup_script = file(var.use_docker ? "../startup/startup.sh" : "../startup/startup_no_docker.sh")
 
   # Labels for resource organization
   labels = {
-    environment = "prod"
+    environment = "dev"
     purpose     = "purkinje-experiment"
   }
 
@@ -46,8 +57,9 @@ resource "google_compute_instance" "purkinje_vm" {
   metadata = {
     owner = "ricardo"
     usage = "notebook-autorun"
+    "install-nvidia-driver" = "true"
   }
 
   # Network tags for firewall rules
-  tags = ["http-server", "https-server"]
+  tags = ["http-server", "https-server", "gpu"]
 }

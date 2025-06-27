@@ -55,18 +55,16 @@ jobs:
           
       - name: Terraform Init
         run: terraform init
-        working-directory: ./src
+        working-directory: ./src/terraform
 
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var="credentials_file=gcp-key.json" \
             -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}"
-        working-directory: ./src
+        working-directory: ./src/terraform
 
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
-            -var="credentials_file=gcp-key.json" \
             -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}"
-        working-directory: ./src
+        working-directory: ./src/terraform

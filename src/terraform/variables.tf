@@ -15,7 +15,7 @@ variable "credentials_file" {
 }
 
 variable "machine_type" {
-  default = "n2-standard-32"
+  default = "n1-standard-16"
 }
 
 variable "image" {
