@@ -75,12 +75,12 @@ jobs:
         run: |
           terraform plan \
             -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}" \
-            -var="test_script=${{ github.event.inputs.RUN_TEST == 'true' }}"
+            -var="run_test=${{ github.event.inputs.RUN_TEST == 'true' }}"
         working-directory: ./src/terraform
 
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
             -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}" \
-            -var="test_script=${{ github.event.inputs.RUN_TEST == 'true' }}"
+            -var="run_test=${{ github.event.inputs.RUN_TEST == 'true' }}"
         working-directory: ./src/terraform
