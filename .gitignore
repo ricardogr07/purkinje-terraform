@@ -33,3 +33,5 @@ override.tf.json
 terraform.rc
 
 *.json
+
+venv/

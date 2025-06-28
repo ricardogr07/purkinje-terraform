@@ -1,10 +1,7 @@
 #! /bin/bash
 
-# Configurable variables
-SCRIPT="ECG_BO_demo.py"
-REPO_URL="https://github.com/ricardogr07/purkinje-learning.git"
 GCS_BUCKET="gs://purkinje-results-bucket"
-OUT_NAME="output_$(date +%Y%m%d_%H%M).log"
+OUT_NAME="test_output_$(date +%Y%m%d_%H%M).log"
 
 # 1. Install system dependencies
 apt-get update
@@ -27,20 +24,19 @@ else
   echo "CUDA installer already exists, skipping installation"
 fi
 
-# 3. Clone the repository
-cd /root
-git clone "$REPO_URL"
-cd purkinje-learning
-
-# 4. Install Python dependencies
+# 3. Install Python dependencies
 pip install --upgrade pip
-pip install -r requirements.txt
-pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client torch
 
-# 5. Create output folder
+# Clone the test script from GCS bucket
+gsutil cp "$GCS_BUCKET/test_gpu_pytorch.py" /root/test_gpu_pytorch.py
+python3 /root/test_gpu_pytorch.py &> /root/output/$OUT_NAME
+
+
+# 4. Create output folder
 mkdir -p /root/output
 
-# 6. Retrieve token.json from GCS to the VM
+# 5. Retrieve token.json from GCS to the VM
 echo "Checking if token.json exists in GCS..."
 if gsutil ls "$GCS_BUCKET/token.json" > /dev/null 2>&1; then
     echo "token.json found. Downloading..."
@@ -49,15 +45,16 @@ else
     echo "token.json not found in GCS. Continuing without it."
 fi
 
-# 7. Execute the script directly with logging
-echo "Running script: $SCRIPT"
-python3 "/root/purkinje-learning/$SCRIPT" &> "/root/output/$OUT_NAME"
+# 6. Execute the script directly with logging
+echo "=== Testing PyTorch GPU availability ==="
+python3 /root/purkinje-terraform/src/test_scripts/test_gpu_pytorch.py &> /root/output/$OUT_NAME
+
 SCRIPT_EXIT_CODE=$?
 
-# 8. Check exit code and upload result to GCS
+# 7. Check exit code and upload result to GCS
 if [ "$SCRIPT_EXIT_CODE" -eq 0 ]; then
     echo "Script executed successfully, uploading results..."
-    gsutil cp /root/output/* "$GCS_BUCKET/"
+    gsutil cp /root/output/$OUT_NAME "$GCS_BUCKET/"
     export EXECUTION_STATUS="SUCCESS"
 else
     echo "ERROR: Script execution failed with code $SCRIPT_EXIT_CODE." >&2
@@ -66,7 +63,7 @@ else
     export EXECUTION_STATUS="FAILURE"
 fi
 
-# 9. Send email notification
+# 8. Send email notification
 if [ -f /root/purkinje-learning/token.json ]; then
     echo "Sending email notification..."
     EXECUTION_STATUS="$EXECUTION_STATUS" python3 /root/purkinje-learning/send_mail.py || echo "Failed to send email"
@@ -74,5 +71,5 @@ else
     echo "token.json not found, email will not be sent"
 fi
 
-# 10. Automatically shut down the VM
+# 9. Automatically shut down the VM
 shutdown -h now

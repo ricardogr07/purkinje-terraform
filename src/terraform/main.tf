@@ -45,6 +45,9 @@ resource "google_compute_instance" "purkinje_vm" {
   }
 
   # Startup script to run when the instance boots
+
+  metadata_startup_script = file("../startup/main_startup.sh")
+
   metadata_startup_script = file(var.use_docker ? "../startup/startup.sh" : "../startup/startup_no_docker.sh")
 
   # Labels for resource organization
@@ -55,10 +58,12 @@ resource "google_compute_instance" "purkinje_vm" {
 
   # Additional metadata for internal tracking
   metadata = {
-    owner = "ricardo"
-    usage = "notebook-autorun"
-    "install-nvidia-driver" = "true"
-  }
+  owner                 = "ricardo"
+  usage                 = "notebook-autorun"
+  install-nvidia-driver = "true"
+  run_test              = tostring(var.run_test)
+  use_docker            = tostring(var.use_docker)
+}
 
   # Network tags for firewall rules
   tags = ["http-server", "https-server", "gpu"]

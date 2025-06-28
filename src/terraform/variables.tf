@@ -31,3 +31,9 @@ variable "use_docker" {
   type        = bool
   default     = false
 }
+
+variable "run_test" {
+  description = "Whether to run a test script on startup"
+  type        = bool
+  default     = false
+}

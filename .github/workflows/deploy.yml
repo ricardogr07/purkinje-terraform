@@ -7,6 +7,10 @@ on:
         description: 'Use Docker on startup-script'
         required: true
         default: 'false'
+      RUN_TEST:
+        description: 'Run test script'
+        required: false
+        default: 'false'
 
 permissions:
   contents: read
@@ -45,6 +49,16 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ./src/gcp-key.json
 
+      - name: Upload test script to GCS
+        if: github.event.inputs.RUN_TEST == 'true'
+        run: |
+          gcloud auth activate-service-account --key-file=./src/gcp-key.json
+          gcloud config set project purkinje-learning
+          gsutil cp ./src/test_scripts/test_gpu_pytorch.py gs://purkinje-results-bucket/test_gpu_pytorch.py
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./src/gcp-key.json
+
+
       - name: Delete existing VM if it exists
         run: |
           gcloud auth activate-service-account --key-file=./src/gcp-key.json
@@ -61,10 +75,12 @@ jobs:
         run: |
           terraform plan \
             -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}"
+            -var="test_script=${{ github.event.inputs.RUN_TEST == 'true' }}"
         working-directory: ./src/terraform
 
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
             -var="use_docker=${{ github.event.inputs.USE_DOCKER == 'true' }}"
+            -var="test_script=${{ github.event.inputs.RUN_TEST == 'true' }}"
         working-directory: ./src/terraform
