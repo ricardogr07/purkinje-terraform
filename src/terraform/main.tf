@@ -46,9 +46,7 @@ resource "google_compute_instance" "purkinje_vm" {
 
   # Startup script to run when the instance boots
 
-  metadata_startup_script = file("../startup/main_startup.sh")
-
-  metadata_startup_script = file(var.use_docker ? "../startup/startup.sh" : "../startup/startup_no_docker.sh")
+  metadata_startup_script = file("../startup/main.sh")
 
   # Labels for resource organization
   labels = {
