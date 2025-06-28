@@ -30,10 +30,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 
 # Clone the test script from GCS bucket
 gsutil cp "$GCS_BUCKET/test_gpu_pytorch.py" /root/test_gpu_pytorch.py
-python3 /root/test_gpu_pytorch.py &> /root/output/$OUT_NAME
 
-
-# 4. Create output folder
 mkdir -p /root/output
 
 # 5. Retrieve token.json from GCS to the VM
@@ -47,7 +44,7 @@ fi
 
 # 6. Execute the script directly with logging
 echo "=== Testing PyTorch GPU availability ==="
-python3 /root/purkinje-terraform/src/test_scripts/test_gpu_pytorch.py &> /root/output/$OUT_NAME
+python3 /root/test_gpu_pytorch.py &> /root/output/$OUT_NAME
 
 SCRIPT_EXIT_CODE=$?
 
