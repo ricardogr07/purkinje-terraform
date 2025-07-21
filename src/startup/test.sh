@@ -63,7 +63,7 @@ fi
 # 8. Send email notification
 if [ -f /root/purkinje-learning/token.json ]; then
     echo "Sending email notification..."
-    EXECUTION_STATUS="$EXECUTION_STATUS" python3 /root/purkinje-learning/send_mail.py || echo "Failed to send email"
+    EXECUTION_STATUS="$EXECUTION_STATUS" python3 /root/send_mail.py || echo "Failed to send email"
 else
     echo "token.json not found, email will not be sent"
 fi
