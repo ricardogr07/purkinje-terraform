@@ -7,7 +7,7 @@ variable "region" {
 }
 
 variable "zone" {
-  default = "us-central1-f"
+  default = "us-central1-a"
 }
 
 variable "credentials_file" {
